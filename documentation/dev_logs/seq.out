@@ -1,0 +1,37 @@
+[Alibaba 2017/cpu_util] 1310 machine series
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1788098043.157159    8592 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1788098047.606606    8592 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1788098049.932275    8592 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: SSE3 SSE4.1 SSE4.2 AVX AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING:tensorflow:TensorFlow GPU support is not available on native Windows for TensorFlow >= 2.11. Even if CUDA/cuDNN are installed, GPU will not be used. Please use WSL2 or the TensorFlow-DirectML plugin.
+
+=== Alibaba 2017  target=cpu_util ===
+model       tr_MAE    tr_R2    te_MAE    te_R2   te_RMSE  te_sMAPE
+LSTM        0.0312   0.8328    0.0303   0.8024    0.0381      17.0
+BiLSTM      0.0312   0.8344    0.0329   0.7610    0.0419      18.1
+RNN         0.0331   0.8177    0.0308   0.7817    0.0400      17.7
+[Alibaba 2017/mem_util] 1310 machine series
+
+=== Alibaba 2017  target=mem_util ===
+model       tr_MAE    tr_R2    te_MAE    te_R2   te_RMSE  te_sMAPE
+LSTM        0.0320   0.8949    0.0252   0.9277    0.0320       6.4
+BiLSTM      0.0315   0.8979    0.0245   0.9338    0.0306       6.3
+RNN         0.0340   0.8871    0.0296   0.9089    0.0359       8.0
+[Borg 2019/cpu_usage] 341 machine series
+
+=== Borg 2019  target=cpu_usage ===
+model       tr_MAE    tr_R2    te_MAE    te_R2   te_RMSE  te_sMAPE
+LSTM        0.0065   0.2817    0.0065   0.1945    0.0138     120.2
+BiLSTM      0.0066   0.2838    0.0065   0.1947    0.0138     119.9
+RNN         0.0067   0.2785    0.0067   0.1854    0.0139     120.9
+[Borg 2019/mem_usage] 341 machine series
+
+=== Borg 2019  target=mem_usage ===
+model       tr_MAE    tr_R2    te_MAE    te_R2   te_RMSE  te_sMAPE
+LSTM        0.0044   0.7637    0.0034   0.2694    0.0088      98.8
+BiLSTM      0.0044   0.7621    0.0036   0.2589    0.0089     101.2
+RNN         0.0042   0.7554    0.0032   0.2217    0.0091      92.8
+
+Saved -> <local-python-env>\Workload-Prediction-Rebuild\results\sequence_results.csv / .json

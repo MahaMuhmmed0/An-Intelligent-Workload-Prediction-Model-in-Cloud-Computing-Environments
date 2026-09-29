@@ -1,0 +1,2 @@
+dataset,module,target,model,n_train,n_test,train_MAE,train_MAPE,train_RMSE,train_R2,train_sMAPE,test_MAE,test_MAPE,test_RMSE,test_R2,test_sMAPE,hyperparams
+Alibaba 2017,regression,mem_usage_peak,Random Forest,8148,2037,0.10891552442045097,28.222056421641383,0.13325646528165988,0.3098530509359714,23.595745917397636,0.11115627460244276,31.023270459005865,0.1357764821726043,0.30711872149416286,24.206496030492655,"{""model__max_depth"": 12}"

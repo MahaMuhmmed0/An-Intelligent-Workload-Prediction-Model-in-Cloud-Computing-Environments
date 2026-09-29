@@ -1,0 +1,2 @@
+dataset,module,target,model,n_train,n_test,train_MAE,train_MAPE,train_RMSE,train_R2,train_sMAPE,test_MAE,test_MAPE,test_RMSE,test_R2,test_sMAPE,hyperparams
+Alibaba 2017,regression,mem_usage_mean,Ridge Regression,8148,2037,0.10382111021748007,31.72984719492823,0.12735188192538394,0.26471905206901836,23.767381286800042,0.10707101172803889,37.047744907177425,0.13136633123580488,0.2590225554493625,24.867565414174766,"{""model__alpha"": 100}"

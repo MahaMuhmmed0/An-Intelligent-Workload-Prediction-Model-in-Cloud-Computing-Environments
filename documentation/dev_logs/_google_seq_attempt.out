@@ -1,0 +1,17 @@
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1788191973.014032   15108 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1788191981.154165   15108 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1788192002.829487   15108 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: SSE3 SSE4.1 SSE4.2 AVX AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING:tensorflow:TensorFlow GPU support is not available on native Windows for TensorFlow >= 2.11. Even if CUDA/cuDNN are installed, GPU will not be used. Please use WSL2 or the TensorFlow-DirectML plugin.
+LSTM    Google cpus    test R2=-0.0090  MAE=0.0074  (NOT USED)
+BiLSTM  Google cpus    test R2=-0.0008  MAE=0.0069  (NOT USED)
+RNN     Google cpus    test R2=-0.0164  MAE=0.0073  (NOT USED)
+LSTM    Google memory  test R2=-0.0518  MAE=0.0043  (NOT USED)
+BiLSTM  Google memory  test R2=-0.0713  MAE=0.0045  (NOT USED)
+RNN     Google memory  test R2=-0.1080  MAE=0.0046  (NOT USED)
+  -> <local-python-env>\Workload-Prediction-Rebuild\results/sequence/google_2019__attempt.csv
+
+All R2 ~ 0  ->  Google 2019 Cluster is NOT used for the forecasting module.
+ATTEMPT_DONE

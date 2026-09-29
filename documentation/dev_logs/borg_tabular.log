@@ -1,0 +1,20 @@
+[borg] entity table: (242747, 11)
+
+=== Borg 2019  target=cpu_usage_mean   (train=194197, test=48550) ===
+model                   tr_MAE    tr_R2    te_MAE    te_R2   te_RMSE  te_sMAPE
+Stepwise Regression     0.0066   0.6690    0.0048   0.1629    0.0094     124.9
+Linear Regression       0.0065   0.6836    0.0053   0.1379    0.0095     127.9
+Ridge Regression        0.0065   0.6835    0.0053   0.1514    0.0094     127.8
+Lasso Regression        0.0065   0.6709    0.0048   0.2110    0.0091     124.9
+Elastic Net             0.0065   0.6640    0.0048   0.2317    0.0090     127.6
+Random Forest           0.0031   0.8977    0.0050   0.0966    0.0097     119.5
+
+=== Borg 2019  target=mem_usage_mean   (train=194197, test=48550) ===
+model                   tr_MAE    tr_R2    te_MAE    te_R2   te_RMSE  te_sMAPE
+Stepwise Regression     0.0046   0.6054    0.0055 -10.4934    0.0199     107.5
+Linear Regression       0.0046   0.7013    0.0046  -3.4904    0.0125     123.5
+Ridge Regression        0.0046   0.7013    0.0046  -3.4899    0.0125     123.5
+Lasso Regression        0.0046   0.5971    0.0055  -9.2493    0.0188      95.2
+Elastic Net             0.0046   0.6000    0.0055  -9.4819    0.0190      96.6
+Random Forest           0.0015   0.9620    0.0019   0.4149    0.0045      82.6
+ERROR: The process "11256" not found.

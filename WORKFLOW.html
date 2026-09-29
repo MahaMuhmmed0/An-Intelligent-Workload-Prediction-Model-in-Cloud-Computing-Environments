@@ -1,0 +1,530 @@
+<title>Workload Prediction: Methodology Adaptation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --bg:#f5f6f8; --surface:#ffffff; --surface-2:#eef0f4;
+  --ink:#1a1f2b; --ink-soft:#3c4453; --muted:#5c6675; --faint:#8a94a3;
+  --rule:#e0e3e9; --rule-strong:#c9cdd6;
+  --accent:#0e7c86; --accent-soft:#0e7c8618; --accent-ink:#0b5b63;
+  --warn:#9a5b00; --warn-soft:#9a5b0016;
+  --bad:#b3261e; --bad-soft:#b3261e14;
+  --good:#1f7a44; --good-soft:#1f7a4414;
+  --shadow:0 1px 2px rgba(20,26,40,.05), 0 8px 24px -12px rgba(20,26,40,.12);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#11151b; --surface:#1a212b; --surface-2:#222b37;
+    --ink:#e8ecf2; --ink-soft:#c7cedb; --muted:#98a2b2; --faint:#6b7686;
+    --rule:#2a323e; --rule-strong:#3a4552;
+    --accent:#4cc4d0; --accent-soft:#4cc4d022; --accent-ink:#8fdde5;
+    --warn:#e0a252; --warn-soft:#e0a25218;
+    --bad:#e5766b; --bad-soft:#e5766b1e;
+    --good:#5cc98a; --good-soft:#5cc98a1c;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px -14px rgba(0,0,0,.55);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11151b; --surface:#1a212b; --surface-2:#222b37;
+  --ink:#e8ecf2; --ink-soft:#c7cedb; --muted:#98a2b2; --faint:#6b7686;
+  --rule:#2a323e; --rule-strong:#3a4552;
+  --accent:#4cc4d0; --accent-soft:#4cc4d022; --accent-ink:#8fdde5;
+  --warn:#e0a252; --warn-soft:#e0a25218;
+  --bad:#e5766b; --bad-soft:#e5766b1e;
+  --good:#5cc98a; --good-soft:#5cc98a1c;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px -14px rgba(0,0,0,.55);
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Source Serif 4",Georgia,"Times New Roman",serif;
+  font-size:18px; line-height:1.62; font-weight:400;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px; margin:0 auto; padding:0 clamp(20px,5vw,64px)}
+.layout{display:grid; grid-template-columns:1fr; gap:0}
+@media (min-width:1000px){
+  .layout{grid-template-columns:230px minmax(0,1fr); gap:56px; align-items:start}
+  .toc{position:sticky; top:0; max-height:100vh; overflow-y:auto; padding:48px 0}
+}
+
+/* ---- masthead ---- */
+.masthead{padding:72px 0 40px; border-bottom:1px solid var(--rule)}
+.kicker{
+  font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  font-size:12px; font-weight:500; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--accent-ink); margin:0 0 18px;
+}
+h1{
+  font-family:"Archivo",system-ui,sans-serif; font-weight:700;
+  font-size:clamp(2rem,4.4vw,3.15rem); line-height:1.06; letter-spacing:-.02em;
+  margin:0 0 22px; text-wrap:balance; color:var(--ink);
+}
+.standfirst{
+  font-size:1.16rem; color:var(--ink-soft); max-width:60ch; margin:0 0 26px;
+}
+.meta-row{
+  display:flex; flex-wrap:wrap; gap:8px 10px;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12.5px;
+}
+.tag{
+  border:1px solid var(--rule-strong); border-radius:999px;
+  padding:4px 11px; color:var(--muted); background:var(--surface);
+}
+.tag.on{border-color:var(--accent); color:var(--accent-ink); background:var(--accent-soft)}
+
+/* ---- toc ---- */
+.toc ol{list-style:none; margin:0; padding:0; counter-reset:toc}
+.toc li{counter-increment:toc; margin:0 0 2px}
+.toc a{
+  display:flex; gap:10px; padding:7px 0;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12.5px;
+  color:var(--muted); text-decoration:none; line-height:1.35;
+  border-top:1px solid var(--rule);
+}
+.toc li:first-child a{border-top:0}
+.toc a::before{content:counter(toc,decimal-leading-zero); color:var(--faint)}
+.toc a:hover{color:var(--accent-ink)}
+
+/* ---- sections ---- */
+main{padding:16px 0 96px}
+section{padding:52px 0; border-bottom:1px solid var(--rule)}
+section:last-child{border-bottom:0}
+.sec-num{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px;
+  letter-spacing:.14em; color:var(--faint); text-transform:uppercase; display:block;
+  margin-bottom:10px;
+}
+h2{
+  font-family:"Archivo",system-ui,sans-serif; font-weight:600;
+  font-size:clamp(1.45rem,2.8vw,1.95rem); line-height:1.12; letter-spacing:-.015em;
+  margin:0 0 20px; text-wrap:balance; color:var(--ink);
+}
+h3{
+  font-family:"Archivo",system-ui,sans-serif; font-weight:600;
+  font-size:1.12rem; letter-spacing:-.01em; margin:34px 0 12px; color:var(--ink);
+}
+p{margin:0 0 16px; max-width:65ch}
+strong{font-weight:600; color:var(--ink)}
+a{color:var(--accent-ink)}
+code{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.86em;
+  background:var(--surface-2); padding:.12em .38em; border-radius:4px;
+  border:1px solid var(--rule); color:var(--ink-soft);
+}
+.lead{font-size:1.08rem; color:var(--ink-soft)}
+
+/* ---- dataset cards ---- */
+.cards{display:grid; gap:18px; grid-template-columns:1fr; margin:8px 0 0}
+@media (min-width:620px){.cards{grid-template-columns:1fr 1fr}}
+.card{
+  background:var(--surface); border:1px solid var(--rule); border-radius:12px;
+  padding:22px 22px 20px; box-shadow:var(--shadow);
+}
+.card h3{margin:0 0 4px}
+.card .role{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--accent-ink); margin:0 0 14px;
+}
+.card dl{margin:0; display:grid; grid-template-columns:auto 1fr; gap:6px 14px; font-size:14.5px}
+.card dt{color:var(--muted); font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px}
+.card dd{margin:0; color:var(--ink-soft)}
+
+/* ---- tables ---- */
+.tbl-scroll{overflow-x:auto; margin:20px 0; border:1px solid var(--rule); border-radius:12px; background:var(--surface)}
+table{border-collapse:collapse; width:100%; font-size:14px}
+th,td{text-align:left; padding:11px 15px; border-bottom:1px solid var(--rule); vertical-align:top}
+thead th{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--muted);
+  background:var(--surface-2); position:sticky; top:0;
+}
+tbody tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right; font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums}
+.best{color:var(--good); font-weight:600}
+.poor{color:var(--bad)}
+caption{caption-side:bottom; text-align:left; padding:10px 4px 0; font-size:13px; color:var(--muted)}
+
+/* ---- problem register ---- */
+.reg{display:flex; flex-direction:column; gap:0; margin:20px 0; border:1px solid var(--rule); border-radius:12px; overflow:hidden; background:var(--surface)}
+.reg-item{display:grid; grid-template-columns:64px 1fr; border-top:1px solid var(--rule)}
+.reg-item:first-child{border-top:0}
+.reg-code{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-weight:600; font-size:13px;
+  padding:16px 0 16px 18px; color:var(--faint);
+}
+.reg-body{padding:15px 18px 15px 4px}
+.reg-body .what{font-weight:600; color:var(--ink); font-family:"Archivo",sans-serif; font-size:.98rem}
+.reg-body .eff{font-size:14px; color:var(--muted); margin-top:3px}
+.reg-body .fix{font-size:14px; color:var(--good); margin-top:6px}
+.reg-body .fix::before{content:"→ "; color:var(--good)}
+.sev{
+  display:inline-block; font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:10.5px; letter-spacing:.08em; text-transform:uppercase;
+  padding:2px 7px; border-radius:4px; margin-left:8px; vertical-align:1px;
+}
+.sev.severe{background:var(--bad-soft); color:var(--bad)}
+.sev.mod{background:var(--warn-soft); color:var(--warn)}
+
+/* ---- step list ---- */
+.steps{list-style:none; counter-reset:step; margin:20px 0; padding:0; display:flex; flex-direction:column; gap:2px}
+.steps li{
+  counter-increment:step; display:grid; grid-template-columns:34px 1fr; gap:14px;
+  padding:14px 0; border-top:1px solid var(--rule); font-size:15px; color:var(--ink-soft);
+}
+.steps li:first-child{border-top:0}
+.steps li::before{
+  content:counter(step); font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:12px; color:var(--accent-ink); background:var(--accent-soft);
+  border-radius:6px; width:34px; height:26px; display:grid; place-items:center; font-weight:600;
+}
+.steps b{color:var(--ink); font-weight:600}
+
+/* ---- callout ---- */
+.callout{
+  background:var(--accent-soft); border:1px solid var(--accent);
+  border-radius:12px; padding:20px 22px; margin:22px 0;
+}
+.callout p{margin:0; color:var(--ink-soft)}
+.callout p+p{margin-top:10px}
+.callout .h{font-family:"Archivo",sans-serif; font-weight:600; color:var(--accent-ink); display:block; margin-bottom:6px}
+
+.note{font-size:14px; color:var(--muted); font-style:italic}
+.foot{padding:40px 0 0; font-size:13px; color:var(--faint); font-family:"IBM Plex Mono",ui-monospace,monospace}
+
+@media (prefers-reduced-motion:no-preference){
+  html{scroll-behavior:smooth}
+}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:3px}
+</style>
+
+<div class="wrap">
+<header class="masthead">
+  <p class="kicker">Research Workflow · Reproducibility Record</p>
+  <h1>Adapting the Workload-Prediction Method Across Two Cluster Traces</h1>
+  <p class="standfirst">How the original Google 2019 Cluster experiments were reconstructed, what was methodologically wrong with them and the Alibaba re-implementation, and how one leakage-free pipeline was rebuilt to run identically on both datasets.</p>
+  <div class="meta-row">
+    <span class="tag on">Tabular regression · complete</span>
+    <span class="tag on">Sequence models · complete</span>
+    <span class="tag">Datasets: Google 2019 Cluster · Alibaba 2017</span>
+    <span class="tag">Targets: CPU &amp; memory usage</span>
+  </div>
+  <div style="margin-top:1.25em;padding:0.9em 1.1em;border:2px solid #b45309;border-radius:6px;background:#fffbeb;color:#78350f;font-size:0.95em;line-height:1.5;">
+    <strong>Addendum (2026-09-29):</strong> this page documents an earlier
+    leakage-correction milestone and predates the addition of a seventh
+    regression baseline, HistGradientBoosting (an established, additional
+    non-linear ensemble baseline, evaluated under the identical pipeline as
+    the six principal regression algorithms — not a novel algorithm). Its
+    "55 experiments" count (below) is historical and superseded. The final
+    principal-experiment count is <strong>63</strong> (56 regression across
+    seven algorithms + 6 Alibaba forecasting + 1 Google temporal diagnostic).
+    The current authoritative inventory is
+    <code>documentation/MASTER_EXPERIMENT_TABLE.md</code>. The historical
+    content below is otherwise retained unchanged.
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="toc" aria-label="Contents">
+    <ol>
+      <li><a href="#datasets">The two datasets</a></li>
+      <li><a href="#original">Original Google 2019 Cluster method</a></li>
+      <li><a href="#problems">Methodological problems found</a></li>
+      <li><a href="#pipeline">The corrected unified pipeline</a></li>
+      <li><a href="#mapping">Feature &amp; target mapping</a></li>
+      <li><a href="#unmapped">What cannot be mapped</a></li>
+      <li><a href="#corrections">Corrections register</a></li>
+      <li><a href="#results">Corrected results</a></li>
+      <li><a href="#sequence">The sequence-model finding</a></li>
+      <li><a href="#next">Status &amp; next step</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <section id="datasets">
+      <span class="sec-num">Section 01</span>
+      <h2>The two datasets</h2>
+      <p class="lead">Both traces record what cloud workloads <em>asked for</em> and what they <em>actually used</em>. They differ in structure, in what a "usage" number means, and in what modelling they can support.</p>
+      <div class="cards">
+        <div class="card">
+          <h3>Google 2019 Cluster</h3>
+          <p class="role">Borg trace v3 · public extract</p>
+          <dl>
+            <dt>file</dt><dd><code>borg_traces_data.csv</code> — ≈406 K instance-usage rows, 34 columns</dd>
+            <dt>request</dt><dd><code>resource_request</code> → <code>{cpus, memory}</code>, dict-encoded</dd>
+            <dt>usage</dt><dd><code>average_usage</code>, <code>maximum_usage</code> → <code>{cpus, memory}</code>; <code>cpu_usage_distribution</code> (11 percentiles)</dd>
+            <dt>units</dt><dd>CPU in NCU, memory in normalised bytes — <strong>both divided by the largest machine's capacity</strong>, so both lie in [0, 1] on one scale</dd>
+            <dt>time</dt><dd>31-day span; rows are per-instance 5-minute windows, <strong>sampled sparsely</strong> (median 4 distinct hours per machine)</dd>
+          </dl>
+        </div>
+        <div class="card">
+          <h3>Alibaba 2017</h3>
+          <p class="role">cluster-trace-v2017</p>
+          <dl>
+            <dt>files</dt><dd><code>container_event</code>, <code>container_usage</code> (1.48 M rows), <code>server_usage</code> (188 K rows)</dd>
+            <dt>request</dt><dd><code>plan_cpu</code> (core count), <code>plan_mem</code>, <code>plan_disk</code> (normalised)</dd>
+            <dt>usage</dt><dd><code>cpu_util</code>, <code>mem_util</code> — <strong>percentage of the instance's own request</strong> (0–100)</dd>
+            <dt>units</dt><dd>utilisation ratio; the request magnitude has largely divided out</dd>
+            <dt>time</dt><dd>12 continuous hours; <code>server_usage</code> is dense machine-level telemetry at 5-minute resolution</dd>
+          </dl>
+        </div>
+      </div>
+      <div class="callout">
+        <p><span class="h">One consequence to state up front</span>Because Google usage is an absolute normalised quantity and Alibaba usage is a ratio to the request, <strong>only R² is comparable across the two datasets</strong> — MAE and RMSE are in different units. This difference is also the main reason Google usage turns out far more predictable from the request than Alibaba usage.</p>
+      </div>
+    </section>
+
+    <section id="original">
+      <span class="sec-num">Section 02</span>
+      <h2>Original Google 2019 Cluster method, as reconstructed</h2>
+      <p><em>This section is a historical audit record — it is <strong>not</strong> the methodology used for the final results. The final, corrected methodology is Section 04.</em> There was no written spec; the description below is read directly from the pre-rebuild notebooks that predated this repository. All models shared one preparation path.</p>
+
+      <h3>Tabular models — Linear, Ridge, Lasso, Elastic Net, Stepwise, Random Forest</h3>
+      <ol class="steps">
+        <li><span><b>Parse.</b> <code>cpu_usage_distribution</code> string → array via <code>eval(x.replace(" ", ", "))</code>; <code>resource_request</code> → <code>cpu_request</code>, <code>memory_request</code> via <code>ast.literal_eval</code>.</span></li>
+        <li><span><b>Engineer.</b> <code>mean_cpu_usage</code> (the target), plus <code>std_cpu_usage</code>, <code>max_cpu_usage</code>, <code>min_cpu_usage</code> and <code>cpu_memory_ratio = mean_cpu_usage / (assigned_memory + 1e-5)</code>.</span></li>
+        <li><span><b>Assemble.</b> keep every numeric column as a feature; <code>SimpleImputer(strategy="mean")</code> over the whole frame.</span></li>
+        <li><span><b>Expand.</b> Stepwise / Lasso / Elastic Net add <code>PolynomialFeatures(degree=2)</code>.</span></li>
+        <li><span><b>Split.</b> <code>train_test_split(test_size=0.2, random_state=42)</code>, shuffled.</span></li>
+        <li><span><b>Scale.</b> <code>MinMaxScaler</code> (Linear/Ridge/RF) or <code>StandardScaler</code> (the rest), fit on train.</span></li>
+        <li><span><b>Select / tune.</b> Stepwise = <code>LassoCV(cv=5)</code> → keep non-zero coefficients → refit OLS. Lasso / Elastic Net = <code>GridSearchCV(cv=5, scoring="neg_mean_absolute_error")</code>.</span></li>
+        <li><span><b>Evaluate.</b> MAE, MAPE, R² on train and test.</span></li>
+      </ol>
+      <p class="note">Memory notebooks use <code>memory_request</code> as the target rather than a usage quantity.</p>
+
+      <h3>Sequence models — LSTM, BiLSTM, RNN</h3>
+      <ol class="steps">
+        <li><span><b>Series.</b> take the <code>mean_cpu_usage</code> values in file order.</span></li>
+        <li><span><b>Clean.</b> IQR outlier removal on the series; <code>log1p</code> (LSTM); <code>MinMaxScaler</code> over the whole series.</span></li>
+        <li><span><b>Window.</b> <code>create_sequences</code> with length 50–100; chronological 80/20 split <code>X[:k], X[k:]</code>.</span></li>
+        <li><span><b>Model.</b> stacked 128-64-32, Dropout 0.3, Dense(1); Adam(1e-4), Huber loss; EarlyStopping + ReduceLROnPlateau; <code>validation_split=0.1</code>.</span></li>
+      </ol>
+    </section>
+
+    <section id="problems">
+      <span class="sec-num">Section 03</span>
+      <h2>Methodological problems found</h2>
+      <p>The Alibaba re-implementation is a different, weaker adaptation of the same idea — its problems are severe. The Google notebooks are closer to sound; their problems are moderate.</p>
+
+      <h3>Alibaba re-implementation <span class="sev severe">severe</span></h3>
+      <div class="reg">
+        <div class="reg-item"><div class="reg-code">A1</div><div class="reg-body">
+          <div class="what">The target column sits inside the feature list</div>
+          <div class="eff"><code>features</code> contains <code>cpu_usage_server</code>, which is also the target. The model learns the identity.</div>
+          <div class="fix">Effect: R² = 1.0000, MAE = 0 — this is the "100 %" result, and it is the bug.</div>
+        </div></div>
+        <div class="reg-item"><div class="reg-code">A2</div><div class="reg-body">
+          <div class="what">Invented column names</div>
+          <div class="eff">Columns labelled <code>disk_io</code>, <code>network_io</code>, <code>unknown1/2</code>. The real schema is <code>disk_util%, load1, load5, load15</code>; Alibaba 2017 has no network column at all.</div>
+          <div class="fix">Every feature name in the write-up would have been wrong.</div>
+        </div></div>
+        <div class="reg-item"><div class="reg-code">A3</div><div class="reg-body">
+          <div class="what">A join between two unrelated tables</div>
+          <div class="eff"><code>merge(server_usage, container_usage, on="time")</code> pairs a machine's utilisation with an arbitrary unrelated container measured in the same window, many-to-many.</div>
+          <div class="fix">The resulting dataset has no physical meaning.</div>
+        </div></div>
+        <div class="reg-item"><div class="reg-code">A4</div><div class="reg-body">
+          <div class="what">Stepwise selection reads the test set</div>
+          <div class="eff">Each feature is added to minimise <code>mean_absolute_percentage_error(y_test, …)</code>.</div>
+          <div class="fix">Selection must see training data only.</div>
+        </div></div>
+        <div class="reg-item"><div class="reg-code">A5</div><div class="reg-body">
+          <div class="what">Shuffled split of overlapping windows</div>
+          <div class="eff">60-step windows are built, then <code>train_test_split(shuffle=True)</code> scatters near-identical adjacent windows across train and test.</div>
+          <div class="fix">Effect: R² ≈ 0.9995 for the regularised regressors, purely from leakage.</div>
+        </div></div>
+        <div class="reg-item"><div class="reg-code">A6</div><div class="reg-body">
+          <div class="what">Scaler fit on all data; test set used as validation</div>
+          <div class="eff"><code>fit_transform</code> before the split, and <code>validation_data=(X_test, y_test)</code> with <code>restore_best_weights</code> — the epoch is chosen on the test set.</div>
+          <div class="fix">Both leak test information into training.</div>
+        </div></div>
+        <div class="reg-item"><div class="reg-code">A7</div><div class="reg-body">
+          <div class="what">Arbitrary down-sampling</div>
+          <div class="eff"><code>iloc[::500]</code> — a "60-step window" then spans days of wall-clock time.</div>
+          <div class="fix">Destroys the temporal spacing the sequence models depend on.</div>
+        </div></div>
+      </div>
+
+      <h3>Original Google 2019 Cluster notebooks <span class="sev mod">moderate</span></h3>
+      <div class="reg">
+        <div class="reg-item"><div class="reg-code">G1</div><div class="reg-body">
+          <div class="what">Circular target–feature relationship</div>
+          <div class="eff"><code>mean_cpu_usage</code> is predicted from <code>std / min / max</code> of the <em>same</em> 11-value percentile vector. That is describing the sample, not predicting it.</div>
+          <div class="fix">Inflates R² to 0.95–0.98. Rebuild uses <code>average_usage</code> as the target and drops distribution-derived features.</div>
+        </div></div>
+        <div class="reg-item"><div class="reg-code">G2</div><div class="reg-body">
+          <div class="what">Identifiers kept as numeric features</div>
+          <div class="eff"><code>collection_id</code>, <code>machine_id</code>, <code>instance_index</code>, <code>time</code>, <code>start_time</code>, <code>end_time</code>, <code>cluster</code> all enter the model.</div>
+          <div class="fix">Noise, and a route for time leakage. Dropped in the rebuild.</div>
+        </div></div>
+        <div class="reg-item"><div class="reg-code">G3</div><div class="reg-body">
+          <div class="what">Memory models predict the request, not the usage</div>
+          <div class="eff">Target is <code>memory_request</code>; <code>cpu_memory_ratio</code> is derived from the target. The spec confirms usage is <code>average_usage.memory</code> / <code>assigned_memory</code>.</div>
+          <div class="fix">Rebuild predicts memory <em>usage</em> and forms the ratio from requests only.</div>
+        </div></div>
+        <div class="reg-item"><div class="reg-code">G4</div><div class="reg-body">
+          <div class="what">Imputer and polynomial expansion fit before the split</div>
+          <div class="eff">Column means and feature statistics see the test rows.</div>
+          <div class="fix">Minor leakage; moved inside an sklearn <code>Pipeline</code>.</div>
+        </div></div>
+        <div class="reg-item"><div class="reg-code">G5</div><div class="reg-body">
+          <div class="what">MAPE is meaningless here</div>
+          <div class="eff">Usage is frequently ~0, so reported MAPE runs to 10¹¹–10¹³ %.</div>
+          <div class="fix">Report MAE, RMSE, R² and a guarded sMAPE instead.</div>
+        </div></div>
+        <div class="reg-item"><div class="reg-code">G6</div><div class="reg-body">
+          <div class="what">Sequence models fed a non-temporal bag of instances</div>
+          <div class="eff"><code>mean_cpu_usage</code> in file order is a set of unrelated jobs, not a time series.</div>
+          <div class="fix">Correctly rebuilt (Section 09) — and the extract still cannot support forecasting.</div>
+        </div></div>
+      </div>
+    </section>
+
+    <section id="pipeline">
+      <span class="sec-num">Section 04</span>
+      <h2>The corrected unified pipeline</h2>
+      <p><em>This is the final, authoritative methodology. It is implemented in <code>src/</code> (the source of truth); the <code>notebooks/</code> contain the same logic verbatim.</em> One codebase, two thin dataset adapters that project each trace onto the same contract: <strong>features are the resource request plus permitted static metadata; targets are observed usage only; nothing derived from a target is ever a feature.</strong></p>
+      <ol class="steps">
+        <li><span><b>Adapter.</b> Google: parse the three dict columns. Alibaba: aggregate <code>container_usage</code> per instance, join <code>container_event</code> requests. Both emit <code>cpu_request, mem_request, cpu_mem_ratio</code> + metadata + <code>cpu_usage / mem_usage</code> (mean and peak).</span></li>
+        <li><span><b>Split.</b> the regression task is cross-sectional — predict an unobserved property of a job from its request — so a <b>random 80/20 split</b> is used (matching the original); a chronological split is kept for sensitivity checks.</span></li>
+        <li><span><b>Robust preprocessing.</b> <code>log1p</code> on non-negative skewed features and winsorising to the <b>training</b> 1st/99th percentiles — bounds from train only — so degree-2 polynomial terms cannot extrapolate wildly.</span></li>
+        <li><span><b>Pipeline.</b> <code>SimpleImputer → PolynomialFeatures → Scaler → model</code>, so every fitted transform sees training folds only. <code>GridSearchCV(cv=5)</code> on the training partition.</span></li>
+        <li><span><b>Stepwise.</b> embedded <code>LassoCV</code> selection then OLS refit, entirely within training data.</span></li>
+        <li><span><b>Sequence models.</b> genuine per-machine series; per-series chronological split; scaler fit on training windows only; no window straddles the boundary; validation = tail of train, never the test set.</span></li>
+        <li><span><b>Metrics.</b> MAE, RMSE, R², guarded sMAPE — reported for <b>train and test</b> so any train/test gap is visible.</span></li>
+      </ol>
+    </section>
+
+    <section id="mapping">
+      <span class="sec-num">Section 05</span>
+      <h2>Feature &amp; target mapping</h2>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th>Role</th><th>Google 2019 Cluster</th><th>Alibaba 2017</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>CPU request</td><td><code>resource_request.cpus</code> (NCU)</td><td><code>plan_cpu</code>, normalised by max core count</td><td>maps — units differ</td></tr>
+            <tr><td>Memory request</td><td><code>resource_request.memory</code></td><td><code>plan_mem</code> (already normalised)</td><td>direct</td></tr>
+            <tr><td>Disk request</td><td>— none</td><td><code>plan_disk</code></td><td>Alibaba only</td></tr>
+            <tr><td>CPU : memory ratio</td><td><code>cpu_request / mem_request</code></td><td><code>plan_cpu / plan_mem</code></td><td>direct — from requests, no leak</td></tr>
+            <tr><td><strong>CPU usage</strong> (target)</td><td><code>average_usage.cpus</code></td><td>per-instance mean of <code>cpu_util%</code></td><td>maps — computed by aggregation on Alibaba</td></tr>
+            <tr><td><strong>Memory usage</strong> (target)</td><td><code>average_usage.memory</code></td><td>per-instance mean of <code>mem_util%</code></td><td>maps</td></tr>
+            <tr><td>Peak usage (target)</td><td><code>maximum_usage.{cpus,memory}</code></td><td>per-instance max of util</td><td>maps</td></tr>
+            <tr><td>Priority</td><td><code>priority</code></td><td>— none</td><td>Google only</td></tr>
+            <tr><td>Scheduling class</td><td><code>scheduling_class</code></td><td>— none</td><td>Google only</td></tr>
+            <tr><td>Workload class</td><td><code>collection_type</code> (job / alloc)</td><td>table of origin (batch / online)</td><td>partial proxy</td></tr>
+            <tr><td>Placement width</td><td>— (constraints only)</td><td><code>cpuset</code> width</td><td>Alibaba only</td></tr>
+            <tr><td>Time index</td><td><code>start_time</code> (µs)</td><td><code>ts</code> (s)</td><td>direct — Alibaba horizon far shorter</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The shared feature set used for both datasets is <code>cpu_request</code>, <code>mem_request</code>, <code>cpu_mem_ratio</code>, plus each dataset's available metadata. Targets are always usage-only.</p>
+    </section>
+
+    <section id="unmapped">
+      <span class="sec-num">Section 06</span>
+      <h2>What cannot be mapped</h2>
+      <ul>
+        <li><strong>Network I/O</strong> — does not exist in Alibaba 2017. The original Alibaba notebooks invented it.</li>
+        <li><strong>Priority / scheduling class for containers</strong> — Alibaba exposes these for batch tasks only, not the online containers used here.</li>
+        <li><strong>Pre-computed usage distributions</strong> — Google's <code>cpu_usage_distribution</code> / <code>tail_cpu_usage_distribution</code> percentile vectors have no Alibaba equivalent; comparable statistics would have to be computed from each instance's own <code>container_usage</code> rows.</li>
+        <li><strong>CPI / MPKI at request time</strong> — Alibaba records these only as usage outputs, not as inputs available before scheduling.</li>
+        <li><strong>A machine-level utilisation time series on Google</strong> — see Section 09.</li>
+      </ul>
+    </section>
+
+    <section id="corrections">
+      <span class="sec-num">Section 07</span>
+      <h2>Corrections register</h2>
+      <p>Every change from the original method, with its justification. The intended methodology is preserved; the implementation defects are removed.</p>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th>#</th><th>Change</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td class="num">1</td><td>Target removed from the feature set on Alibaba; features restricted to request + metadata on both datasets</td><td>Fixes A1 and G1 — the models were reading the answer.</td></tr>
+            <tr><td class="num">2</td><td>Memory target changed from <code>memory_request</code> to <code>average_usage.memory</code> / mean <code>mem_util%</code></td><td>Fixes G3 — the task is to predict usage, and the trace spec confirms the usage field.</td></tr>
+            <tr><td class="num">3</td><td><code>cpu_mem_ratio</code> recomputed from requests, not from usage</td><td>Removes the target-derived feature in G3.</td></tr>
+            <tr><td class="num">4</td><td>Correct Alibaba schema applied from the official <code>schema.csv</code></td><td>Fixes A2 — no invented or misnamed columns.</td></tr>
+            <tr><td class="num">5</td><td>The <code>server_usage ⋈ container_usage</code> join dropped; per-instance aggregation used instead</td><td>Fixes A3 — the tables have no row-level relationship.</td></tr>
+            <tr><td class="num">6</td><td>Imputer, polynomial expansion and scaler moved inside a <code>Pipeline</code>; selection and tuning run on training folds only</td><td>Fixes A4, A6, G4 — no transform sees the test set.</td></tr>
+            <tr><td class="num">7</td><td>Identifier columns excluded from the feature set</td><td>Fixes G2.</td></tr>
+            <tr><td class="num">8</td><td>Robust preprocessing added: <code>log1p</code> + winsorising to training quantiles</td><td>Keeps degree-2 polynomial regressors numerically stable on heavy-tailed request data.</td></tr>
+            <tr><td class="num">9</td><td>Reporting switched to MAE / RMSE / R² / guarded sMAPE, for train and test</td><td>Fixes G5 — raw MAPE is undefined near zero usage; train+test exposes over-fitting.</td></tr>
+            <tr><td class="num">10</td><td>Sequence models: real per-machine series, chronological split, scaler on training windows only, separate validation slice</td><td>Fixes A5, A6, A7, G6.</td></tr>
+            <tr><td class="num">11</td><td>Alibaba down-sampling removed; full <code>container_usage</code> aggregated per instance</td><td>Fixes A7.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="results">
+      <span class="sec-num">Section 08</span>
+      <h2>Corrected results</h2>
+      <p class="lead">Held-out test set. No evidence of substantial over-fitting — the mean absolute train–test R² gap is ≈0.02 (maximum ≈0.07, on the noisiest target, Alibaba CPU peak). Leakage is assessed separately, from the feature construction and training pipeline.</p>
+
+      <h3>Regression — predict mean usage from the resource request</h3>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th>Model</th><th class="num">Google · CPU R²</th><th class="num">Google · Mem R²</th><th class="num">Alibaba · CPU R²</th><th class="num">Alibaba · Mem R²</th></tr></thead>
+          <tbody>
+            <tr><td>Linear / Ridge</td><td class="num">0.34</td><td class="num">0.51</td><td class="num">0.26</td><td class="num">0.28</td></tr>
+            <tr><td>Lasso</td><td class="num">0.39</td><td class="num">0.62</td><td class="num">0.28</td><td class="num">0.29</td></tr>
+            <tr><td>Elastic Net</td><td class="num">0.41</td><td class="num">0.60</td><td class="num">0.27</td><td class="num">0.28</td></tr>
+            <tr><td>Stepwise</td><td class="num">0.47</td><td class="num">0.64</td><td class="num">0.30</td><td class="num">0.32</td></tr>
+            <tr><td>Random Forest</td><td class="num best">0.83</td><td class="num best">0.94</td><td class="num best">0.33</td><td class="num best">0.32</td></tr>
+          </tbody>
+          <caption>Peak-usage targets follow the same ordering and are recorded in <code>results/tabular_results.csv</code>.</caption>
+        </table>
+      </div>
+      <p><strong>Google usage is highly predictable from the request</strong> — request and usage share the same normalised scale, so the tree ensemble reaches R² 0.83 (CPU) and 0.94 (memory). <strong>Alibaba plateaus near 0.30</strong> because its usage is a percentage <em>of</em> the request, which therefore cancels out — the genuine over-provisioning gap. Tree ensembles beat the linear family on both.</p>
+
+      <h3>Sequence forecasting — next 5-minute interval from the previous 24 <span class="note">(Alibaba only)</span></h3>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th>Model</th><th class="num">CPU R²</th><th class="num">CPU MAE</th><th class="num">Memory R²</th><th class="num">Memory MAE</th></tr></thead>
+          <tbody>
+            <tr><td>LSTM</td><td class="num best">0.796</td><td class="num">0.031</td><td class="num">0.930</td><td class="num">0.025</td></tr>
+            <tr><td>BiLSTM</td><td class="num">0.768</td><td class="num">0.033</td><td class="num best">0.933</td><td class="num">0.025</td></tr>
+            <tr><td>RNN</td><td class="num">0.783</td><td class="num">0.031</td><td class="num">0.900</td><td class="num">0.031</td></tr>
+          </tbody>
+          <caption>Per-machine <code>server_usage</code> series, chronological split, scaler fit on training windows only.</caption>
+        </table>
+      </div>
+    </section>
+
+    <section id="sequence">
+      <span class="sec-num">Section 09</span>
+      <h2>The sequence-model finding on Google 2019 Cluster</h2>
+      <p>The Google sequence experiment was rebuilt correctly — a cell-level hourly aggregate of <code>average_usage</code> over the 31-day span, missing buckets interpolated, chronological split, scaler on train only. It still fails, and the reason is the data, not the model.</p>
+      <div class="tbl-scroll">
+        <table>
+          <thead><tr><th>Autocorrelation at lag (hours)</th><th class="num">1</th><th class="num">2</th><th class="num">3</th><th class="num">6</th><th class="num">12</th><th class="num">24</th></tr></thead>
+          <tbody>
+            <tr><td>Google 2019 Cluster — cell series <span class="note">(noise band ±0.072)</span></td><td class="num poor">0.01</td><td class="num poor">−0.03</td><td class="num poor">0.01</td><td class="num poor">0.03</td><td class="num poor">−0.01</td><td class="num poor">−0.01</td></tr>
+            <tr><td>Alibaba 2017 — cell series <span class="note">(noise band ±0.163)</span></td><td class="num best">0.87</td><td class="num best">0.82</td><td class="num best">0.79</td><td class="num best">0.70</td><td class="num best">0.54</td><td class="num best">0.55</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The public <code>borg_traces_data.csv</code> is a random cross-sectional sample of instance-usage records — 1 to 9 907 rows per hour, no machine-level continuity. Its autocorrelation is inside the noise band at every lag, including lag 24 where a real datacenter signal shows a strong diurnal peak. LSTM, BiLSTM and RNN all score R² ≈ 0 on it.</p>
+      <div class="callout">
+        <p><span class="h">Decision</span>The two traces support different modelling paradigms. <strong>Google 2019 Cluster → cross-sectional provisioning regression only. Alibaba 2017 → regression and temporal forecasting.</strong> The paper presents the LSTM/BiLSTM/RNN results on Alibaba and reports the Google extract's lack of temporal structure, with the autocorrelation table as evidence.</p>
+      </div>
+    </section>
+
+    <section id="next">
+      <span class="sec-num">Section 10</span>
+      <h2>Status &amp; next step</h2>
+      <p><strong>Experiments, result regeneration, and the full technical audit are complete.</strong> The research package is frozen: 24 Google regression + 24 Alibaba regression + 6 Alibaba forecasting + 1 Google temporal diagnostic = 55 experiments <em>(historical count at the time this page was written — see the addendum at the top of this page; the current total, including the additional HistGradientBoosting baseline, is 63)</em>, all reproduced from <code>src/</code> and mapped in <code>documentation/MASTER_EXPERIMENT_TABLE.csv</code>. The result files (<code>results/tabular_results.csv</code>, <code>results/sequence_results.csv</code>, <code>results/temporal_diagnostic.json</code>) carry the final numbers under the <code>Google 2019 Cluster</code> / <code>Alibaba 2017</code> labels.</p>
+      <ul>
+        <li><strong>Done.</strong> Leakage-free rebuild; random-split cross-sectional regression on both traces; per-machine <code>server_usage</code> forecasting on Alibaba; Google forecasting excluded on autocorrelation evidence; MAE / RMSE / R² / guarded sMAPE as principal metrics (MAPE retained in CSVs only); documentation audit and wording cleanup.</li>
+        <li><strong>Next.</strong> Write the paper on the LNCS template — Dataset Description, Preprocessing, Feature Engineering, Model Development, Experimental Setup, Evaluation, Results, Discussion, Limitations, Conclusion — using the drafts in <code>documentation/</code>.</li>
+        <li><strong>Open with the supervisor.</strong> Reference scope — the proposal's nine citations plus any peer-reviewed sources to be approved individually.</li>
+      </ul>
+      <p class="foot">Code and results — this repository · authoritative implementation in <code>src/</code> (run <code>python -m src.run_all</code>), notebooks in <code>notebooks/</code>, outputs in <code>results/</code>, write-up drafts in <code>documentation/</code>.</p>
+    </section>
+  </main>
+</div>
+</div>

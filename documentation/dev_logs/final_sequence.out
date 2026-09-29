@@ -1,0 +1,15 @@
+[Alibaba 2017/cpu_util] 1310 machine series
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1788172016.717468   20692 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1788172021.091430   20692 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1788172023.359532   20692 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: SSE3 SSE4.1 SSE4.2 AVX AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING:tensorflow:TensorFlow GPU support is not available on native Windows for TensorFlow >= 2.11. Even if CUDA/cuDNN are installed, GPU will not be used. Please use WSL2 or the TensorFlow-DirectML plugin.
+
+=== Alibaba 2017  target=cpu_util ===
+model       tr_MAE    tr_R2    te_MAE    te_R2   te_RMSE  te_sMAPE
+LSTM        0.0286   0.8574    0.0352   0.7286    0.0446      19.0
+BiLSTM      0.0324   0.8255    0.0314   0.7711    0.0410      17.0
+RNN         0.0329   0.8182    0.0301   0.7864    0.0396      17.1
+[Alibaba 2017/mem_util] 1310 machine series

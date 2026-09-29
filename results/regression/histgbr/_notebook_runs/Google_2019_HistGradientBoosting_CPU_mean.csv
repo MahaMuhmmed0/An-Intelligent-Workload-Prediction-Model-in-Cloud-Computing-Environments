@@ -1,0 +1,2 @@
+dataset,module,target,model,n_train,n_test,train_MAE,train_MAPE,train_RMSE,train_R2,train_sMAPE,test_MAE,test_MAPE,test_RMSE,test_R2,test_sMAPE,hyperparams
+Google 2019 Cluster,regression,cpu_usage_mean,HistGradientBoostingRegressor,116586,29147,0.0035416855601111043,137377353965453.42,0.006916196595806578,0.8617605396004648,92.83390996122706,0.003582976615871692,133933060913784.56,0.007038272036166373,0.8431701364047488,92.96337117982554,"{""model__learning_rate"": 0.1, ""model__max_depth"": 12}"

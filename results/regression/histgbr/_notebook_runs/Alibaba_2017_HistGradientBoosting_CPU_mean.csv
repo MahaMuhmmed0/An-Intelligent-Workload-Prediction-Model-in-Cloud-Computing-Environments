@@ -1,0 +1,2 @@
+dataset,module,target,model,n_train,n_test,train_MAE,train_MAPE,train_RMSE,train_R2,train_sMAPE,test_MAE,test_MAPE,test_RMSE,test_R2,test_sMAPE,hyperparams
+Alibaba 2017,regression,cpu_usage_mean,HistGradientBoostingRegressor,8148,2037,0.0505733092447182,81.38656984891632,0.06832886035906406,0.35196282714664806,53.89955280965103,0.05160327835424459,83.66149575916218,0.06992082365892573,0.3351523114023143,54.15129528152781,"{""model__learning_rate"": 0.1, ""model__max_depth"": 6}"

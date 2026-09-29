@@ -1,0 +1,18 @@
+{
+  "source": "borg_traces_data.csv (one row per instance-usage window)",
+  "bucket_microseconds": 3600000000,
+  "start_time_filter": "1e6 <= start_time <= 3e12",
+  "definition": "distinct 1-hour buckets in which each machine_id appears",
+  "n_machines": 81036,
+  "span_hours": 744,
+  "span_days": 31.0,
+  "distinct_hours_per_machine": {
+    "median": 4.0,
+    "mean": 4.6,
+    "p90": 5.0,
+    "max": 184
+  },
+  "fraction_machines_le_6_hours": 0.965,
+  "n_machines_ge_40_hours": 159,
+  "n_machines_ge_144_hours": 2
+}

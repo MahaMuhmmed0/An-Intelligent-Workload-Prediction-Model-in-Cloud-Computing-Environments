@@ -1,0 +1,23 @@
+[Borg 2019/cpu_usage] 1 machine series
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1788170140.609290   20072 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1788170152.666455   20072 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+I0000 00:00:1788170155.476613   20072 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: SSE3 SSE4.1 SSE4.2 AVX AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING:tensorflow:TensorFlow GPU support is not available on native Windows for TensorFlow >= 2.11. Even if CUDA/cuDNN are installed, GPU will not be used. Please use WSL2 or the TensorFlow-DirectML plugin.
+
+=== Borg 2019  target=cpu_usage ===
+model       tr_MAE    tr_R2    te_MAE    te_R2   te_RMSE  te_sMAPE
+LSTM        0.0086  -0.0035    0.0072   0.0038    0.0100      89.6
+BiLSTM      0.0086   0.0011    0.0073  -0.0058    0.0100      90.2
+RNN         0.0088  -0.0144    0.0071  -0.0409    0.0102      89.3
+[Borg 2019/mem_usage] 1 machine series
+
+=== Borg 2019  target=mem_usage ===
+model       tr_MAE    tr_R2    te_MAE    te_R2   te_RMSE  te_sMAPE
+LSTM        0.0048  -0.0010    0.0041  -0.0254    0.0067      93.8
+BiLSTM      0.0048  -0.0014    0.0042  -0.0297    0.0067      94.2
+RNN         0.0059  -0.1553    0.0057  -0.4525    0.0080     108.3
+
+Saved -> <local-python-env>\Workload-Prediction-Rebuild\results\sequence_results.csv / .json
